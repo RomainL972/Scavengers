@@ -22,6 +22,7 @@ public class Player : MovingObject
     private Animator animator;
     private int food;
     private Vector2 touchOrigin = -Vector2.one;
+    private UserReportingScript userReporting;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -31,6 +32,10 @@ public class Player : MovingObject
         food = GameManager.instance.playerFoodPoints;
 
         foodText.text = "Food: " + food;
+        userReporting = GameObject.Find("UserReporting").GetComponent<UserReportingScript>();
+        // Debug.Log(userReporting);
+        // Debug.Log(userReporting);
+        // Debug.Log(userReporting);
 
         base.Start();
     }
@@ -44,6 +49,10 @@ public class Player : MovingObject
     void Update()
     {
         if (!GameManager.instance.playersTurn || GameManager.instance.IsDoingSetup()) return;
+
+        //Debug.Log(userReporting);
+        //Debug.Log(userReporting.State);
+        if (userReporting.State == UserReportingState.ShowingForm || userReporting.State == UserReportingState.CreatingUserReport) return;
 
         int horizontal = 0;
         int vertical = 0;
