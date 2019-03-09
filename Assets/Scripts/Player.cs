@@ -48,15 +48,13 @@ public class Player : MovingObject
         int horizontal = 0;
         int vertical = 0;
 
-#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
-
         horizontal = (int)Input.GetAxisRaw("Horizontal");
         vertical = (int)Input.GetAxisRaw("Vertical");
 
         if (horizontal != 0)
             vertical = 0;
-#else
-        if(Input.touchCount > 0)
+ 
+        if(Input.touchSupported && horizontal==0 && vertical==0 && Input.touchCount > 0)
         {
             Touch myTouch = Input.touches[0];
 
@@ -77,8 +75,6 @@ public class Player : MovingObject
                     vertical = y > 0 ? 1 : -1;
             }
         }
-
-#endif
 
         if (horizontal != 0 || vertical != 0)
             AttemptMove<Wall>(horizontal, vertical);
@@ -150,9 +146,10 @@ public class Player : MovingObject
     {
         if (food <= 0)
         {
-            SoundManager.instance.PlaySingle(gameOverSound);
             SoundManager.instance.musicSource.Stop();
+            SoundManager.instance.PlaySingle(gameOverSound);
             GameManager.instance.GameOver();
+            enabled = false;
         }
             
     }

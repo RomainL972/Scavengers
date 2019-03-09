@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;       //Allows us to use Lists. 
 using UnityEngine.UI;
-    
+using UnityEngine.SceneManagement;
+
 public class GameManager : MonoBehaviour
 {
     public float levelStartDelay = 2f;
@@ -15,10 +16,11 @@ public class GameManager : MonoBehaviour
     //Store a reference to our BoardManager which will set up the level.
     private Text levelText;
     private GameObject levelImage;
-    private int level = 1;                                  //Current level number, expressed in game as "Day 1".
+    private int level = 0;                                  //Current level number, expressed in game as "Day 1".
     private List<Enemy> enemies;
     private bool enemiesMoving;
     private bool doingSetup;
+    private bool gameOver = false;
 
     //Awake is always called before any Start functions
     void Awake()
@@ -43,14 +45,26 @@ public class GameManager : MonoBehaviour
         boardScript = GetComponent<BoardManager>();
             
         //Call the InitGame function to initialize the first level 
+        //InitGame();
+    }
+
+    // called first
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    // called second
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        level++;
         InitGame();
     }
 
-    private void OnLevelWasLoaded(int index)
+    // called when the game is terminated
+    void OnDisable()
     {
-        level++;
-
-        InitGame();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     void InitGame()
@@ -76,15 +90,41 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        levelText.text = "After " + level + " days, you starved.";
+        levelText.text = "After " + level + " days, you starved.\n\nPress enter or touch screen\nto restart";
         levelImage.SetActive(true);
-        enabled = false;
+        gameOver = true;
     }
 
     void Update() {
-        if (playersTurn || enemiesMoving || doingSetup)
+        if(gameOver)
+        {
+            foreach(char c in Input.inputString)
+            {
+                if(c == '\n' || c == '\r')
+                {
+                    gameOver = false;
+                    Restart();
+                    return;
+                }
+            }
+            if(Input.touchCount > 0)
+            {
+                gameOver = false;
+                Restart();
+            }
+        }
+
+        if (playersTurn || enemiesMoving || doingSetup || gameOver)
             return;
         StartCoroutine(MoveEnemies());
+    }
+
+    private void Restart()
+    {
+        level = 0;
+        playerFoodPoints = 100;
+        SoundManager.instance.musicSource.Play();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void AddEnemyToList(Enemy script)
