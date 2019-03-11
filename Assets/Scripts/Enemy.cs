@@ -53,6 +53,7 @@ public class Enemy : MovingObject
     protected override void OnCantMove<T>(T component)
     {
         Player hitPlayer = component as Player;
+        if (hitPlayer.isImmortal()) return;
 
         animator.SetTrigger("enemyAttack");
 
