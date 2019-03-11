@@ -35,7 +35,7 @@ public class BoardManager : MonoBehaviour
 	public GameObject[] enemyTiles;
 	public GameObject[] outerWallTiles;
 
-	private Transform boardHolder;
+    private Transform boardHolder;
 	private List <Vector3> gridPositions = new List<Vector3>();
 
 	void InitialiseList()
@@ -99,5 +99,5 @@ public class BoardManager : MonoBehaviour
 		int enemyCount = (int)Mathf.Log(level, 2f);
 		LayoutObjectAtRandom(enemyTiles, enemyCount, enemyCount);
 		Instantiate(exit, new Vector3(columns - 1, rows - 1, 0F), Quaternion.identity);
-	}
+    }
 }

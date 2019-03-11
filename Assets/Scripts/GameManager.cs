@@ -12,17 +12,22 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    private const int StartPlayerFoodPoints = 100;
+    private const int StartLevel = 0;
+
     public float levelStartDelay = 2f;
     public float turnDelay = 0.1f;
     public static GameManager instance = null;              //Static instance of GameManager which allows it to be accessed by any other script.
     public BoardManager boardScript;
-    public int playerFoodPoints = 100;
+    public int playerFoodPoints = StartPlayerFoodPoints;
     [HideInInspector] public bool playersTurn = true;
+    public GameObject mainCamera;
 
     //Store a reference to our BoardManager which will set up the level.
+    //private DeviceChange deviceChange;
     private Text levelText;
     private GameObject levelImage;
-    private int level = 0;                                  //Current level number, expressed in game as "Day 1".
+    private int level = StartLevel;
     private List<Enemy> enemies;
     private bool enemiesMoving;
     private bool doingSetup;
@@ -49,9 +54,8 @@ public class GameManager : MonoBehaviour
             
         //Get a component reference to the attached BoardManager script
         boardScript = GetComponent<BoardManager>();
-            
-        //Call the InitGame function to initialize the first level 
-        //InitGame();
+
+        //deviceChange = GetComponent<DeviceChange>();
     }
 
     // called first
@@ -66,6 +70,20 @@ public class GameManager : MonoBehaviour
         level++;
         InitGame();
     }
+
+    /*void OnOrientationChange()
+    {
+        switch(Input.deviceOrientation)
+        {
+            case DeviceOrientation.Portrait:
+            case DeviceOrientation.PortraitUpsideDown:
+                Camera.main.orthographicSize = 10;
+                break;
+            default:
+                Camera.main.orthographicSize = 5;
+                break;
+        }
+    }*/
 
     // called when the game is terminated
     void OnDisable()
@@ -85,7 +103,15 @@ public class GameManager : MonoBehaviour
 
         enemies.Clear();
         //Call the SetupScene function of the BoardManager script, pass it current level number.
-        boardScript.SetupScene(level);    
+        boardScript.SetupScene(level);
+
+        //deviceChange.OnOrientationChange.AddListener(OnOrientationChange);
+        //OnOrientationChange();
+#if UNITY_ANDROID && !UNITY_EDITOR
+        Camera.main.orthographicSize = 10;
+#else
+        Camera.main.orthographicSize = 5;
+#endif
     }
 
     private void HideLevelImage()
@@ -102,7 +128,7 @@ public class GameManager : MonoBehaviour
     }
 
     void Update() {
-        if(gameOver)
+        if (gameOver)
         {
             foreach(char c in Input.inputString)
             {
@@ -127,8 +153,8 @@ public class GameManager : MonoBehaviour
 
     private void Restart()
     {
-        level = 0;
-        playerFoodPoints = 100;
+        level = StartLevel;
+        playerFoodPoints = StartPlayerFoodPoints;
         SoundManager.instance.musicSource.Play();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }

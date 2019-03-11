@@ -25,6 +25,7 @@ public class Player : MovingObject
     public AudioClip drinkSound2;
     public AudioClip gameOverSound;
 
+    private bool immortal;
     private Animator animator;
     private int food;
     private Vector2 touchOrigin = -Vector2.one;
@@ -92,7 +93,17 @@ public class Player : MovingObject
         }
 
         if (horizontal != 0 || vertical != 0)
-            AttemptMove<Wall>(horizontal, vertical);
+        {
+            if (
+            !(transform.position.y == 0 && vertical == -1) &&
+            !(transform.position.x == 0 && horizontal == -1) &&
+            !(transform.position.y == GameManager.instance.boardScript.rows - 1 && vertical == 1) &&
+            !(transform.position.x == GameManager.instance.boardScript.columns - 1 && horizontal == 1)
+            )
+            {
+                AttemptMove<Wall>(horizontal, vertical);
+            }
+        }
     }
 
     protected override void AttemptMove<T>(int xDir, int yDir)
@@ -117,6 +128,7 @@ public class Player : MovingObject
     {
         if(other.tag == "Exit")
         {
+            immortal = true;
             Invoke("Restart", restartLevelDelay);
             enabled = false;
         }
@@ -134,7 +146,6 @@ public class Player : MovingObject
             SoundManager.instance.RandomizeSfx(drinkSound1, drinkSound2);
             other.gameObject.SetActive(false);
         }
-
     }
 
     protected override void OnCantMove<T>(T component)
@@ -167,5 +178,10 @@ public class Player : MovingObject
             enabled = false;
         }
             
+    }
+
+    public bool isImmortal()
+    {
+        return immortal;
     }
 }
